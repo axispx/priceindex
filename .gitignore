@@ -1,1 +1,8 @@
+# Ignore temporary files
 tmp/
+
+# Ignore environment variables
+.env
+
+# Ignore macOS metadata
+.DS_Store

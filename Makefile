@@ -7,3 +7,6 @@ build:
 
 run:
 	./tmp/priceindex
+
+migrate:
+	./tmp/priceindex migrate
