@@ -2,7 +2,9 @@ package source
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/antitokens/priceindex/model"
 	"github.com/antitokens/priceindex/utils"
@@ -21,24 +23,38 @@ func NewRaydium() Raydium {
 	return Raydium{}
 }
 
-func (r Raydium) GetPrice(token string) (model.Price, error) {
-	tokenAddress := utils.GetTokenAddress(token)
+func (r Raydium) GetPrice(tokens ...string) ([]model.Price, error) {
+	tokenAddresses := utils.GetTokenAddress(tokens...)
 
-	resp, err := http.Get("https://api-v3.raydium.io/mint/price?mints=" + tokenAddress)
+	resp, err := http.Get("https://api-v3.raydium.io/mint/price?mints=" + strings.Join(tokenAddresses, ","))
 	if err != nil {
-		return model.Price{}, err
+		return []model.Price{}, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return []model.Price{}, fmt.Errorf("failed to get price from raydium")
+	}
 
 	var raydiumResponse RaydiumResponse
 	err = json.NewDecoder(resp.Body).Decode(&raydiumResponse)
 	if err != nil {
-		return model.Price{}, err
+		return []model.Price{}, err
 	}
 
-	return model.Price{
-		Price:   raydiumResponse.Data[tokenAddress],
-		Source:  "raydium",
-		Address: tokenAddress,
-	}, nil
+	prices := []model.Price{}
+	for _, tokenAddress := range tokenAddresses {
+		price := raydiumResponse.Data[tokenAddress]
+		if price == "" {
+			continue
+		}
+
+		prices = append(prices, model.Price{
+			Price:   price,
+			Source:  "raydium",
+			Address: tokenAddress,
+		})
+	}
+
+	return prices, nil
 }

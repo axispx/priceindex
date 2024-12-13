@@ -8,7 +8,6 @@ import (
 
 	"github.com/antitokens/priceindex/api"
 	"github.com/antitokens/priceindex/config"
-	"github.com/antitokens/priceindex/model"
 	"github.com/antitokens/priceindex/source"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-migrate/migrate/v4"
@@ -67,17 +66,10 @@ func (a *App) indexTokenPrice() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		priceAnti, err := a.Source.GetPrice("anti")
+		prices, err := a.Source.GetPrice("anti", "pro")
 		if err != nil {
 			panic(err)
 		}
-
-		pricePro, err := a.Source.GetPrice("pro")
-		if err != nil {
-			panic(err)
-		}
-
-		prices := []model.Price{priceAnti, pricePro}
 
 		if err := a.DB.Create(&prices).Error; err != nil {
 			panic(err)
