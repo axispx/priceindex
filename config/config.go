@@ -2,18 +2,20 @@ package config
 
 import (
 	"log"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
 
 type DBConfig struct {
-	ConnectionString string `envconfig:"PRICEINDEX_DB_URL"`
-	MigrationsDir    string `envconfig:"PRICEINDEX_DB_MIGRATIONS_DIR"`
+	ConnectionString string `required:"true" envconfig:"PRICEINDEX_DB_URL"`
+	MigrationsDir    string `required:"true" envconfig:"PRICEINDEX_DB_MIGRATIONS_DIR"`
 }
 
 type Config struct {
-	DB DBConfig
+	DB            DBConfig
+	IndexInterval time.Duration `envconfig:"PRICEINDEX_INTERVAL" default:"60s"`
 }
 
 func LoadConfig() *Config {

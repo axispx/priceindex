@@ -3,8 +3,8 @@ package model
 import "time"
 
 type Price struct {
+	Timestamp time.Time `gorm:"primaryKey;->"`
 	Price     string
-	Timestamp time.Time
 	Source    string
 	Address   string
 }

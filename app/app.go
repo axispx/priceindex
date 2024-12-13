@@ -63,7 +63,7 @@ func (a *App) Migrate() {
 }
 
 func (a *App) indexTokenPrice() {
-	ticker := time.NewTicker(60 * time.Second)
+	ticker := time.NewTicker(a.Config.IndexInterval)
 	defer ticker.Stop()
 
 	for range ticker.C {
