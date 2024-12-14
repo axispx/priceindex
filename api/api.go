@@ -21,7 +21,7 @@ func GetPriceHandler(source source.Source, db *gorm.DB) fiber.Handler {
 		}
 
 		priceResponse := model.PriceResponse{
-			Price:     price.Price,
+			Price:     price.Price.String(),
 			Timestamp: price.Timestamp.Unix(),
 			Source:    price.Source,
 			Address:   price.Address,

@@ -8,6 +8,7 @@ import (
 
 	"github.com/antitokens/priceindex/model"
 	"github.com/antitokens/priceindex/utils"
+	"github.com/shopspring/decimal"
 )
 
 type RaydiumResponse struct {
@@ -49,8 +50,13 @@ func (r Raydium) GetPrice(tokens ...string) ([]model.Price, error) {
 			continue
 		}
 
+		priceDecimal, err := decimal.NewFromString(price)
+		if err != nil {
+			return []model.Price{}, err
+		}
+
 		prices = append(prices, model.Price{
-			Price:   price,
+			Price:   priceDecimal,
 			Source:  "raydium",
 			Address: tokenAddress,
 		})
