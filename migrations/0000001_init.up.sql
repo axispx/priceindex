@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
 CREATE TABLE IF NOT EXISTS prices (
     timestamp timestamptz DEFAULT CURRENT_TIMESTAMP,
     source VARCHAR(255) NOT NULL,

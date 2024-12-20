@@ -1,1 +1,2 @@
 DROP TABLE IF EXISTS prices;
+DROP EXTENSION IF EXISTS timescaledb;
