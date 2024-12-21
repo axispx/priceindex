@@ -12,3 +12,9 @@ type Price struct {
 	Source    string
 	Address   string
 }
+
+type HourlyPrice struct {
+	Hour     time.Time       `json:"hour"`
+	Address  string          `json:"address"`
+	AvgPrice decimal.Decimal `json:"avg_price"`
+}

@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/antitokens/priceindex/model"
 	"github.com/antitokens/priceindex/source"
@@ -10,25 +11,54 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetPriceHandler(source source.Source, db *gorm.DB) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		token := c.Params("token")
-		address := utils.GetTokenAddress(token)
+type ApiHandler struct {
+	db *gorm.DB
+}
 
-		var price model.Price
-		if err := db.Where("address = ?", address).Order("timestamp DESC").First(&price).Error; err != nil {
-			return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "Price not found"})
-		}
+func NewApiHandler(db *gorm.DB) *ApiHandler {
+	return &ApiHandler{db: db}
+}
 
-		priceResponse := model.PriceResponse{
-			Price:     price.Price.String(),
-			Timestamp: price.Timestamp.Unix(),
-			Source:    price.Source,
-			Address:   price.Address,
-		}
+func (ah *ApiHandler) GetPrice(c *fiber.Ctx) error {
+	token := c.Params("token")
+	address := utils.GetTokenAddress(token)
 
-		return c.JSON(priceResponse)
+	var price model.Price
+	if err := ah.db.Where("address = ?", address).Order("timestamp DESC").First(&price).Error; err != nil {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "Price not found"})
 	}
+
+	priceResponse := model.PriceResponse{
+		Price:     price.Price.String(),
+		Timestamp: price.Timestamp.Unix(),
+		Source:    price.Source,
+		Address:   price.Address,
+	}
+
+	return c.JSON(priceResponse)
+}
+
+func (ah *ApiHandler) GetHourlyPrice(c *fiber.Ctx) error {
+	start := c.Query("start")
+	end := c.Query("end")
+
+	if _, err := time.Parse("2006-01-02", start); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid start date"})
+	}
+
+	if _, err := time.Parse("2006-01-02", end); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid end date"})
+	}
+
+	token := c.Params("token")
+	address := utils.GetTokenAddress(token)
+
+	var prices []model.HourlyPrice
+	if err := ah.db.Table("hourly_prices").Where("address = ? AND date(hour) >= ? AND date(hour) <= ?", address, start, end).Find(&prices).Error; err != nil {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "No price history found"})
+	}
+
+	return c.JSON(prices)
 }
 
 func GetHistoryHandler(source source.Source, db *gorm.DB) fiber.Handler {

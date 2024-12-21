@@ -18,10 +18,11 @@ import (
 )
 
 type App struct {
-	Source source.Source
-	Router *fiber.App
-	DB     *gorm.DB
-	Config *config.Config
+	Source     source.Source
+	Router     *fiber.App
+	DB         *gorm.DB
+	Config     *config.Config
+	ApiHandler *api.ApiHandler
 }
 
 func New() *App {
@@ -35,13 +36,18 @@ func New() *App {
 		panic(err)
 	}
 
-	return &App{Source: source, Router: router, DB: db, Config: cfg}
+	apiHandler := api.NewApiHandler(db)
+
+	return &App{Source: source, Router: router, DB: db, Config: cfg, ApiHandler: apiHandler}
 }
 
 func (a *App) Start() {
 	go a.indexTokenPrice()
 
-	a.Router.Get("/price/:token", api.GetPriceHandler(a.Source, a.DB))
+	apiHandler := a.ApiHandler
+
+	a.Router.Get("/price/:token", apiHandler.GetPrice)
+	a.Router.Get("/price/hourly/:token", apiHandler.GetHourlyPrice)
 	a.Router.Listen(":3000")
 }
 
