@@ -14,13 +14,13 @@ type Price struct {
 }
 
 type HourlyPrice struct {
-	Hour     time.Time       `json:"hour"`
-	Address  string          `json:"address"`
-	AvgPrice decimal.Decimal `json:"avg_price"`
+	Hour     time.Time       `gorm:"->"`
+	Address  string          `gorm:"->"`
+	AvgPrice decimal.Decimal `gorm:"->"`
 }
 
 type DailyPrice struct {
-	Day      time.Time       `json:"day"`
-	Address  string          `json:"address"`
-	AvgPrice decimal.Decimal `json:"avg_price"`
+	Day      time.Time       `gorm:"->"`
+	Address  string          `gorm:"->"`
+	AvgPrice decimal.Decimal `gorm:"->"`
 }

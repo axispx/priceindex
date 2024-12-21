@@ -58,7 +58,14 @@ func (ah *ApiHandler) GetHourlyPrice(c *fiber.Ctx) error {
 		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "No price history found"})
 	}
 
-	return c.JSON(prices)
+	var pricesResponse []model.HourlyPriceResponse
+	for _, price := range prices {
+		pricesResponse = append(pricesResponse, model.HourlyPriceResponse{
+			price.Hour.Unix(), price.Address, price.AvgPrice.String(),
+		})
+	}
+
+	return c.JSON(pricesResponse)
 }
 
 func (ah *ApiHandler) GetDailyPrice(c *fiber.Ctx) error {
@@ -81,7 +88,14 @@ func (ah *ApiHandler) GetDailyPrice(c *fiber.Ctx) error {
 		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "No price history found"})
 	}
 
-	return c.JSON(prices)
+	var pricesResponse []model.DailyPriceResponse
+	for _, price := range prices {
+		pricesResponse = append(pricesResponse, model.DailyPriceResponse{
+			price.Day.Unix(), price.Address, price.AvgPrice.String(),
+		})
+	}
+
+	return c.JSON(pricesResponse)
 }
 
 func GetHistoryHandler(source source.Source, db *gorm.DB) fiber.Handler {
