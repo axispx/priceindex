@@ -61,6 +61,29 @@ func (ah *ApiHandler) GetHourlyPrice(c *fiber.Ctx) error {
 	return c.JSON(prices)
 }
 
+func (ah *ApiHandler) GetDailyPrice(c *fiber.Ctx) error {
+	start := c.Query("start")
+	end := c.Query("end")
+
+	if _, err := time.Parse("2006-01-02", start); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid start date"})
+	}
+
+	if _, err := time.Parse("2006-01-02", end); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid end date"})
+	}
+
+	token := c.Params("token")
+	address := utils.GetTokenAddress(token)
+
+	var prices []model.DailyPrice
+	if err := ah.db.Table("daily_prices").Where("address = ? AND date(day) >= ? AND date(day) <= ?", address, start, end).Find(&prices).Error; err != nil {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{"error": "No price history found"})
+	}
+
+	return c.JSON(prices)
+}
+
 func GetHistoryHandler(source source.Source, db *gorm.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"error": "Not implemented"})

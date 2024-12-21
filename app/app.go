@@ -48,6 +48,7 @@ func (a *App) Start() {
 
 	a.Router.Get("/price/:token", apiHandler.GetPrice)
 	a.Router.Get("/price/hourly/:token", apiHandler.GetHourlyPrice)
+	a.Router.Get("/price/daily/:token", apiHandler.GetDailyPrice)
 	a.Router.Listen(":3000")
 }
 
