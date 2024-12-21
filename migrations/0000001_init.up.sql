@@ -7,3 +7,5 @@ CREATE TABLE IF NOT EXISTS prices (
     price DECIMAL(30,30) NOT NULL,
     PRIMARY KEY (timestamp, address)
 );
+
+SELECT create_hypertable('prices', 'timestamp', migrate_data => TRUE);
