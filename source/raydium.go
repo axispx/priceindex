@@ -25,7 +25,7 @@ func NewRaydium() Raydium {
 }
 
 func (r Raydium) GetPrice(tokens ...string) ([]model.Price, error) {
-	tokenAddresses := utils.GetTokenAddress(tokens...)
+	tokenAddresses := utils.GetTokenAddresses(tokens...)
 
 	resp, err := http.Get("https://api-v3.raydium.io/mint/price?mints=" + strings.Join(tokenAddresses, ","))
 	if err != nil {
