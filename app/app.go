@@ -44,6 +44,7 @@ func New() *App {
 
 func (a *App) Start() {
 	go a.indexTokenPrice()
+	go a.indexMarketCap()
 
 	apiHandler := a.ApiHandler
 
@@ -71,7 +72,7 @@ func (a *App) Migrate() {
 }
 
 func (a *App) indexTokenPrice() {
-	ticker := time.NewTicker(a.Config.IndexInterval)
+	ticker := time.NewTicker(a.Config.PriceIndexInterval)
 	defer ticker.Stop()
 
 	for range ticker.C {
@@ -81,6 +82,22 @@ func (a *App) indexTokenPrice() {
 		}
 
 		if err := a.DB.Create(&prices).Error; err != nil {
+			panic(err)
+		}
+	}
+}
+
+func (a *App) indexMarketCap() {
+	ticker := time.NewTicker(a.Config.MarketCapIndexInterval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		marketCaps, err := a.Source.GetMarketCap("anti", "pro")
+		if err != nil {
+			panic(err)
+		}
+
+		if err := a.DB.Create(&marketCaps).Error; err != nil {
 			panic(err)
 		}
 	}

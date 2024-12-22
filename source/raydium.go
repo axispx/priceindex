@@ -1,6 +1,7 @@
 package source
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -8,6 +9,8 @@ import (
 
 	"github.com/antitokens/priceindex/model"
 	"github.com/antitokens/priceindex/utils"
+	"github.com/gagliardetto/solana-go"
+	"github.com/gagliardetto/solana-go/rpc"
 	"github.com/shopspring/decimal"
 )
 
@@ -63,4 +66,39 @@ func (r Raydium) GetPrice(tokens ...string) ([]model.Price, error) {
 	}
 
 	return prices, nil
+}
+
+func (r Raydium) GetMarketCap(tokens ...string) ([]model.MarketCap, error) {
+	tokenAddresses := utils.GetTokenAddresses(tokens...)
+
+	endpoint := rpc.MainNetBeta_RPC
+	client := rpc.New(endpoint)
+
+	marketCaps := []model.MarketCap{}
+
+	for _, tokenAddress := range tokenAddresses {
+		tokenPubKey := solana.MustPublicKeyFromBase58(tokenAddress)
+		supply, err := client.GetTokenSupply(context.TODO(), tokenPubKey, rpc.CommitmentFinalized)
+		if err != nil {
+			return []model.MarketCap{}, err
+		}
+
+		supplyAmount, err := decimal.NewFromString(supply.Value.UiAmountString)
+		if err != nil {
+			return []model.MarketCap{}, err
+		}
+
+		prices, err := r.GetPrice(tokenAddress)
+		if err != nil {
+			return []model.MarketCap{}, err
+		}
+
+		price := prices[0].Price
+
+		marketCap := price.Mul(supplyAmount)
+
+		marketCaps = append(marketCaps, model.MarketCap{MarketCap: marketCap, Source: "raydium", Address: tokenAddress})
+	}
+
+	return marketCaps, nil
 }

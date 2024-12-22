@@ -14,9 +14,10 @@ type DBConfig struct {
 }
 
 type Config struct {
-	DB            DBConfig
-	Port          int           `envconfig:"PRICEINDEX_PORT" default:"3000"`
-	IndexInterval time.Duration `envconfig:"PRICEINDEX_INTERVAL" default:"60s"`
+	DB                     DBConfig
+	Port                   int           `envconfig:"PRICEINDEX_PORT" default:"3000"`
+	PriceIndexInterval     time.Duration `envconfig:"PRICEINDEX_PRICE_INTERVAL" default:"60s"`
+	MarketCapIndexInterval time.Duration `envconfig:"PRICEINDEX_MARKETCAP_INTERVAL" default:"1h"`
 }
 
 func LoadConfig() *Config {

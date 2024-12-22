@@ -16,11 +16,9 @@ func GetTokenAddresses(tokens ...string) []string {
 }
 
 func GetTokenAddress(token string) string {
-	token = strings.TrimSpace(strings.ToLower(token))
-
-	if token == "anti" {
+	if strings.ToLower(token) == "anti" {
 		return ANTIaddress
-	} else if token == "pro" {
+	} else if strings.ToLower(token) == "pro" {
 		return PROaddress
 	} else {
 		return token
