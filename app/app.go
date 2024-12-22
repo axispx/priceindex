@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -50,7 +51,7 @@ func (a *App) Start() {
 	a.Router.Get("/price/history/:token", apiHandler.GetPriceHistory)
 	a.Router.Get("/price/hourly/:token", apiHandler.GetHourlyPrice)
 	a.Router.Get("/price/daily/:token", apiHandler.GetDailyPrice)
-	a.Router.Listen(":3000")
+	a.Router.Listen(fmt.Sprintf(":%d", a.Config.Port))
 }
 
 func (a *App) Migrate() {

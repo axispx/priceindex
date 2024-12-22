@@ -15,6 +15,7 @@ type DBConfig struct {
 
 type Config struct {
 	DB            DBConfig
+	Port          int           `envconfig:"PRICEINDEX_PORT" default:"3000"`
 	IndexInterval time.Duration `envconfig:"PRICEINDEX_INTERVAL" default:"60s"`
 }
 
